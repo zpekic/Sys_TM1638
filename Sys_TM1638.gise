@@ -21,9 +21,7 @@
 
   <sourceproject xmlns="http://www.xilinx.com/XMLSchema" xil_pn:fileType="FILE_XISE" xil_pn:name="Sys_TM1638.xise"/>
 
-  <files xmlns="http://www.xilinx.com/XMLSchema">
-    <file xil_pn:fileType="FILE_NCD" xil_pn:name="sys_tm1638_basys2_guide.ncd" xil_pn:origination="imported"/>
-  </files>
+  <files xmlns="http://www.xilinx.com/XMLSchema"/>
 
   <transforms xmlns="http://www.xilinx.com/XMLSchema"/>
 

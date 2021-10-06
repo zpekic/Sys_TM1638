@@ -80,8 +80,8 @@ constant decmap: table16x8 := (
 	std_logic_vector(to_unsigned(natural(character'pos('9')), 8)),	
 	std_logic_vector(to_unsigned(natural(character'pos('-')), 8)), -- for calculator minus	
 	std_logic_vector(to_unsigned(natural(character'pos('+')), 8)),	-- for calculator plus
-	std_logic_vector(to_unsigned(natural(character'pos('O')), 8)),	-- for calculator errOr
-	std_logic_vector(to_unsigned(natural(character'pos('R')), 8)),	-- for calculator eRRoR
+	std_logic_vector(to_unsigned(natural(character'pos('o')), 8)),	-- for calculator errOr
+	std_logic_vector(to_unsigned(natural(character'pos('r')), 8)),	-- for calculator eRRoR
 	std_logic_vector(to_unsigned(natural(character'pos('E')), 8)),	-- for calculator Error
 	std_logic_vector(to_unsigned(natural(character'pos(' ')), 8))	-- for calculator blanking
 );
@@ -89,38 +89,38 @@ constant decmap: table16x8 := (
 -- adapted from https://github.com/dmadison/LED-Segment-ASCII/blob/master/7-Segment/7-Segment-ASCII_HEX.txt
 type table128x8 is array (0 to 127) of std_logic_vector(7 downto 0);
 constant internalseg: table128x8 := (
-	X"00", --/* (00) */
-	X"00", --/* (01) */
-	X"00", --/* (02) */
-	X"00", --/* (03) */
-	X"00", --/* (04) */
-	X"00", --/* (05) */
-	X"00", --/* (06) */
-	X"00", --/* (07) */
-	X"00", --/* (08) */
-	X"00", --/* (09) */
-	X"00", --/* (0A) */
-	X"00", --/* (0B) */
-	X"00", --/* (0C) */
-	X"00", --/* (0D) */
-	X"00", --/* (0E) */
-	X"00", --/* (0F) */
-	X"00", --/* (10) */
-	X"00", --/* (11) */
-	X"00", --/* (12) */
-	X"00", --/* (13) */
-	X"00", --/* (14) */
-	X"00", --/* (15) */
-	X"00", --/* (16) */
-	X"00", --/* (17) */
-	X"00", --/* (18) */
-	X"00", --/* (19) */
-	X"00", --/* (1A) */
-	X"00", --/* (1B) */
-	X"00", --/* (1C) */
-	X"00", --/* (1D) */
-	X"00", --/* (1E) */
-	X"00", --/* (1F) */
+	X"00", --/* (00) */	-- segment pattern start 
+	X"01", --/* (01) */
+	X"02", --/* (02) */
+	X"03", --/* (03) */
+	X"04", --/* (04) */
+	X"05", --/* (05) */
+	X"06", --/* (06) */
+	X"07", --/* (07) */
+	X"08", --/* (08) */
+	X"09", --/* (09) */
+	X"0A", --/* (0A) */
+	X"0B", --/* (0B) */
+	X"0C", --/* (0C) */
+	X"0D", --/* (0D) */
+	X"0E", --/* (0E) */
+	X"0F", --/* (0F) */
+	X"10", --/* (10) */
+	X"11", --/* (11) */
+	X"12", --/* (12) */
+	X"13", --/* (13) */
+	X"14", --/* (14) */
+	X"15", --/* (15) */
+	X"16", --/* (16) */
+	X"17", --/* (17) */
+	X"18", --/* (18) */
+	X"19", --/* (19) */
+	X"1A", --/* (1A) */
+	X"1B", --/* (1B) */
+	X"1C", --/* (1C) */
+	X"1D", --/* (1D) */
+	X"1E", --/* (1E) */
+	X"1F", --/* (1F) */ -- segment patterns end
 	X"00", --/* (space) */
 	X"86", --/* ! */
 	X"22", --/* " */
@@ -238,12 +238,12 @@ type table32x10 is array (0 to 31) of std_logic_vector(9 downto 0);
 constant program: table32x10 := (
 	opr_nop		& "000" & X"0", -- nop
 	opr_nop		& "000" & X"0", -- nop
-	opr_init		& "001" & X"0", -- output command 8<bright>, strobe is reverse of clk_en
+	opr_init		& "001" & X"0", -- output command 8<bright>
 	opr_kbd		& "001" & X"0", -- read buttons command
-	opr_keyin	& "010" & X"1", -- shift-in byte 0 and write to host M(1)
-	opr_keyin	& "010" & X"3", -- shift-in byte 0 and write to host M(3)
-	opr_keyin	& "010" & X"5", -- shift-in byte 0 and write to host M(5)
-	opr_keyin	& "010" & X"7", -- shift-in byte 0 and write to host M(7)
+	opr_keyin	& "010" & X"0", -- shift-in byte 0 and write to host M(0)
+	opr_keyin	& "010" & X"2", -- shift-in byte 0 and write to host M(2)
+	opr_keyin	& "010" & X"4", -- shift-in byte 0 and write to host M(4)
+	opr_keyin	& "010" & X"6", -- shift-in byte 0 and write to host M(6)
 	opr_nop		& "000" & X"0", -- nop
 	opr_nop		& "000" & X"0", -- nop
 	opr_nop		& "000" & X"0", -- nop
@@ -252,22 +252,22 @@ constant program: table32x10 := (
 	opr_nop		& "000" & X"0", -- nop
 	opr_ainc		& "001" & X"0", -- output command 40 (set autoinc mode), strobe is reverse of clk_en
 	opr_saddr	& "001" & X"0", -- output command C0 (set start), strobe is low
-	opr_led		& "101" & X"1", -- read M(0) from host, strobe is low 
+	opr_led		& "101" & X"0", -- read M(0) from host, strobe is low 
 	opr_led		& "101" & X"1", -- read M(1) from host, strobe is low
-	opr_led		& "101" & X"3", -- read M(2) from host, strobe is low
+	opr_led		& "101" & X"2", -- read M(2) from host, strobe is low
 	opr_led		& "101" & X"3", -- read M(3) from host, strobe is low
-	opr_led		& "101" & X"5", -- read M(4) from host, strobe is low
+	opr_led		& "101" & X"4", -- read M(4) from host, strobe is low
 	opr_led		& "101" & X"5", -- read M(5) from host, strobe is low
-	opr_led		& "101" & X"7", -- read M(6) from host, strobe is low
+	opr_led		& "101" & X"6", -- read M(6) from host, strobe is low
 	opr_led		& "101" & X"7", -- read M(7) from host, strobe is low
 	opr_led		& "101" & X"8", -- read M(8) from host, strobe is low
-	opr_led		& "101" & X"8", -- read M(9) from host, strobe is low
+	opr_led		& "101" & X"9", -- read M(9) from host, strobe is low
 	opr_led		& "101" & X"A", -- read M(A) from host, strobe is low
-	opr_led		& "101" & X"A", -- read M(B) from host, strobe is low
+	opr_led		& "101" & X"B", -- read M(B) from host, strobe is low
 	opr_led		& "101" & X"C", -- read M(C) from host, strobe is low 
-	opr_led		& "101" & X"C", -- read M(D) from host, strobe is low
+	opr_led		& "101" & X"D", -- read M(D) from host, strobe is low
 	opr_led		& "101" & X"E", -- read M(E) from host, strobe is low
-	opr_ledx		& "101" & X"E"  -- read M(F) from host, strobe is high last 2 
+	opr_ledx		& "101" & X"F"  -- read M(F) from host, strobe is high last 2 
 );
 
 constant sequence: table16x8 := (
@@ -329,8 +329,8 @@ signal clk_en: std_logic;
 begin
 
 -- debug!
-debug <= ("000" & pc & output) when (i_oe = '1') else ("000" & pc & data_out);
---debug <= ("000" & pc & output) when (i_oe = '1') else ("000" & pc & serin_cnt);
+--debug <= ("000" & pc & output) when (i_oe = '1') else ("000" & pc & data_out);
+debug <= ("000" & pc & output) when (i_oe = '1') else ("000" & pc & serin_cnt);
 
 -- clock equals input clock gated with enable (but only if not executing "nop")
 with i_opr select tm_clk <=

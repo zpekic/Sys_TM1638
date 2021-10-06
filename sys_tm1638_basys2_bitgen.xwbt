@@ -1,8 +1,0 @@
-INTSTYLE=ise
-INFILE=C:\Users\zoltanp\Documents\HexCalc\Sys_TM1638\sys_tm1638_basys2.ncd
-OUTFILE=C:\Users\zoltanp\Documents\HexCalc\Sys_TM1638\sys_tm1638_basys2.bit
-FAMILY=Spartan3E
-PART=xc3s100e-4cp132
-WORKINGDIR=C:\Users\zoltanp\Documents\HexCalc\Sys_TM1638
-LICENSE=WebPack
-USER_INFO=210994392_0_0_816

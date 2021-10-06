@@ -35,6 +35,7 @@ entity fourdigitsevensegled is
            digsel : in  STD_LOGIC_VECTOR (1 downto 0);
            showdigit : in  STD_LOGIC_VECTOR (3 downto 0);
            showdot : in  STD_LOGIC_VECTOR (3 downto 0);
+			  invert: in STD_LOGIC;
 			  -- outputs
            anode : out  STD_LOGIC_VECTOR (3 downto 0);
            segment : out  STD_LOGIC_VECTOR (7 downto 0)
@@ -43,10 +44,10 @@ end fourdigitsevensegled;
 
 architecture structural of fourdigitsevensegled is
 
-signal internalseg: std_logic_vector(7 downto 0); -- 7th is the dot!
-signal dotmask: std_logic_vector(7 downto 0);
+signal internalseg, seg: std_logic_vector(7 downto 0); -- 7th is the dot!
+signal dotmask, invmask: std_logic_vector(7 downto 0);
 signal dot: std_logic;
-signal hexdata: std_logic_vector(3 downto 0);
+signal hexdata, an: std_logic_vector(3 downto 0);
 
 begin
 ---- digit selection
@@ -64,7 +65,7 @@ with digsel select
 				not showdot(3) when "11",
 				'0' when others;
 ---- decode position
-	with digsel select anode <=
+	with digsel select an <=
 				("111" & not showdigit(0)) when "00",
 				("11" & not showdigit(1) & "1") when "01",
 				("1" & not showdigit(2) & "11") when "10",
@@ -93,7 +94,12 @@ with digsel select
 				 "11111111" when others;
 
 	dotmask <= "10000000" when (dot = '1') else "00000000"; 
-	segment <= dotmask xor internalseg;
+	seg <= dotmask xor internalseg;
+
+-- invert if needed (common anode)
+invmask <= X"00" when (invert = '0') else X"FF";
+anode <= an xor invmask(3 downto 0);
+segment <= seg xor invmask;
 
 end structural;
 

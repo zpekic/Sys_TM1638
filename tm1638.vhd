@@ -240,10 +240,10 @@ constant program: table32x10 := (
 	opr_nop		& "000" & X"0", -- nop
 	opr_init		& "001" & X"0", -- output command 8<bright>
 	opr_kbd		& "001" & X"0", -- read buttons command
-	opr_keyin	& "010" & X"0", -- shift-in byte 0 and write to host M(0)
-	opr_keyin	& "010" & X"2", -- shift-in byte 0 and write to host M(2)
-	opr_keyin	& "010" & X"4", -- shift-in byte 0 and write to host M(4)
-	opr_keyin	& "010" & X"6", -- shift-in byte 0 and write to host M(6)
+	opr_keyin	& "010" & X"0", -- shift-in byte 0 and write to host M(0)	0	0	0	<s5>	0	0	0	<s1>
+	opr_keyin	& "010" & X"2", -- shift-in byte 1 and write to host M(2)	0	0	0	<s6>	0	0	<s2>	0
+	opr_keyin	& "010" & X"4", -- shift-in byte 2 and write to host M(4)	0  0	0	<s7>	0	<s3>	0	0	
+	opr_keyin	& "010" & X"6", -- shift-in byte 3 and write to host M(6)	0	0	0	<s8>	<s4>	0	0	0
 	opr_nop		& "000" & X"0", -- nop
 	opr_nop		& "000" & X"0", -- nop
 	opr_nop		& "000" & X"0", -- nop
@@ -271,22 +271,22 @@ constant program: table32x10 := (
 );
 
 constant sequence: table16x8 := (
-	"00101110",   --0
-	"10101110",   --1
-	"00001010",   --2
-	"00001010",   --3
-	"00000000",   --4
-	"00000000",   --5
-	"00000000",   --6
-	"00000000",   --7
-	"00000000",   --8
-	"00000000",   --9
-	"00000000",   --A
-	"00000000",   --b
-	"00001010",   --C
-	"00001010",   --d
-	"01111010",   --E
-	"00111010"	  --F
+	"00101100",   --0
+	"10101100",   --1
+	"00001000",   --2
+	"00001000",   --3
+	"00000010",   --4
+	"00000010",   --5
+	"00000010",   --6
+	"00000010",   --7
+	"00000010",   --8
+	"00000010",   --9
+	"00000010",   --A
+	"00000010",   --b
+	"00001000",   --C
+	"00001000",   --d
+	"01111000",   --E
+	"00111000"	  --F
 );
 
 	
@@ -329,13 +329,13 @@ signal clk_en: std_logic;
 begin
 
 -- debug!
---debug <= ("000" & pc & output) when (i_oe = '1') else ("000" & pc & data_out);
-debug <= ("000" & pc & output) when (i_oe = '1') else ("000" & pc & serin_cnt);
+debug <= ("000" & pc & output) when (i_oe = '1') else ("000" & pc & data_out);
+--debug <= ("000" & pc & output) when (i_oe = '1') else (serin_cnt & data_out);
 
 -- clock equals input clock gated with enable (but only if not executing "nop")
 with i_opr select tm_clk <=
 	'1' when opr_nop,
-	(clk or s_clkin) when opr_keyin,
+	(clk and s_clkin) when opr_keyin,
 	(clk or s_clkout) when others;
 	
 -- strobe depends on i_sel
@@ -370,10 +370,10 @@ with i_opr select output <=
 	X"8" & bright when opr_init, 	-- init command contains the brightness in lower nibble
 	X"40" when opr_ainc,				-- autoinc mode
 	X"C0" when opr_saddr,			-- start address
-	segments when opr_led,		-- segments
-	segments when opr_ledx,		-- segments
-	X"42"	when opr_kbd,			-- read buttons
-	X"00" when others;			-- ignore
+	segments when opr_led,			-- segments
+	segments when opr_ledx,			-- segments
+	X"42"	when opr_kbd,				-- read buttons
+	X"00" when others;				-- ignore
 
 -- lookup table based on the mode
 with mode select ascii <= 
@@ -401,19 +401,21 @@ wr <= i_wr and s_wr;
 dout <= data_out;
 
 -- capture data from TM1638 (keyboard)
+-- see here for wacky encoding: http://www.picbasic.co.uk/forum/showthread.php?t=24154&s=ca06b9a32536c24ffaf72f2ff8d1f12e
 on_tm_clk: process(tm_clk, serin, i_opr)
 begin
-	if (i_opr = opr_init) then
-		serin_cnt <= (others => '0');
-	else
-		if (falling_edge(tm_clk)) then
-			if (i_opr = opr_keyin) then
+	if (falling_edge(tm_clk)) then
+		if (i_opr = opr_keyin) then
+			if (serin_cnt(3) = '0') then 
 				data_out <= serin & data_out(7 downto 1);
-				--data_out <= data_out(6 downto 0) & serin;
-				serin_cnt <= std_logic_vector(unsigned(serin_cnt) + 1);
-			else
-				data_out <= data_out;
 			end if;
+			if (s_clkout = '1')  then
+				serin_cnt <= (others => '0');
+			else
+				serin_cnt <= std_logic_vector(unsigned(serin_cnt) + 1);
+			end if;
+		else
+			data_out <= data_out;
 		end if;
 	end if;
 end process;

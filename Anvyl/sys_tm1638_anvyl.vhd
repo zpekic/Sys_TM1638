@@ -471,14 +471,14 @@ baudgen: sn74hc4040 port map (
 -- common clock for hex input and output processors
 --hex_clk <= freq(to_integer(4 + unsigned(switch_hexclk)));
 with switch_tmclk select mux_clk <=
-	freq16 when "000",			-- lentissimo
-	freq4096 when "001",		-- vivace
-	freq(9) when "010",	-- 0.09375MHz
-	freq(8) when "011",	-- 0.1875HHz
-	freq(7) when "100",	-- 0.375MHz
-	freq(6) when "101",	-- 0.75MHz	
-	freq(5) when "110",	-- 1.50MHz	
-	freq(4) when others;	-- 3.00MHz	
+	freq4 	when "000",	-- lentissimo
+	freq16	when "001",	-- lento
+	freq4096 when "010",	-- vivace
+	freq(9) when "011",	-- 0.09375MHz
+	freq(8) when "100",	-- 0.1875HHz
+	freq(7) when "101",	-- 0.375MHz
+	freq(6) when "110",	-- 0.75MHz	
+	freq(5) when others;	-- 1.50MHz	
 
 -- internal 50MHz clock is only used for VGA
 on_clk: process(CLK)

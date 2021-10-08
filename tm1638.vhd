@@ -47,6 +47,11 @@ end tm1638;
 
 architecture Behavioral of tm1638 is
 
+--component chargen is
+--    Port ( a : in  STD_LOGIC_VECTOR (7 downto 0);
+--           d : out  STD_LOGIC_VECTOR (7 downto 0));
+--end component;
+
 type table16x8 is array(0 to 15) of std_logic_vector(7 downto 0);
 constant hexmap: table16x8 := (
 	std_logic_vector(to_unsigned(natural(character'pos('0')), 8)),	
@@ -381,12 +386,20 @@ with mode select ascii <=
 		hexmap(to_integer(unsigned(nibble_lo))) when mode_hex,
 		decmap(to_integer(unsigned(nibble_lo))) when mode_decimal,
 		"0" & data_in(6 downto 0) when others;		-- 128 chars in ASCII mode
+--		data_in when others;									-- 256 chars in ASCII mode (32 - 127 as "chars", other direct pass-through)
 		
 -- combine dot with segments before sending out
 dotmask <= "00000000" when (mode = mode_ascii) else (dot & "0000000"); -- in ASCII mode, dot is in the char definition 
 -- if reading from odd address, interpret segment directly. This allows driving single LED digits using
 -- addresses 1, 3, 5, 7, 9, 11, 13, 15
 segments <= data_in when (i(0) = '1') else (dotmask or internalseg(to_integer(unsigned(ascii))));
+
+-- convert ASCII code to segment outputs
+--ascii2led: chargen port map (
+--	a => ascii,
+--	d => segments
+--);
+
 	
 -- address comes directly from command
 a <= i_a;
